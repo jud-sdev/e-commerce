@@ -1,0 +1,44 @@
+services:
+  # Main Next.js application
+  - type: web
+    name: e-commerce-app
+    runtime: node
+    env: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXTAUTH_URL
+        fromService:
+          type: web
+          name: e-commerce-app
+          property: host
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: e-commerce-db
+          property: connectionString
+      - key: NEXT_PUBLIC_BASE_URL
+        fromService:
+          type: web
+          name: e-commerce-app
+          property: host
+    autoDeploy: true
+    branch: main
+    rootDir: .
+
+  # PostgreSQL database
+  - type: pgsql
+    name: e-commerce-db
+    databaseName: ecommerce
+    user: ecommerce_user
+    plan: starter
+
+  # Redis for caching and sessions (optional)
+  - type: redis
+    name: e-commerce-redis
+    plan: starter
+    maxmemoryPolicy: allkeys-lru

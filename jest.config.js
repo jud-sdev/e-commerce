@@ -15,8 +15,17 @@ const customJestConfig = {
     '!src/app/layout.tsx',
     '!src/app/globals.css',
   ],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@auth/prisma-adapter)/)',
+  ],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
   },
 }
 

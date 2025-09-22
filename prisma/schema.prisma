@@ -9,7 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  // provider = "sqlite"    // For local development
+  provider = "postgresql"   // For production (Render)
   url      = env("DATABASE_URL")
 }
 
@@ -17,7 +18,10 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  password  String?  // For credentials auth
   image     String?
+  role      UserRole @default(USER)
+  emailVerified DateTime? @map("email_verified")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -41,12 +45,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -74,6 +78,17 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
+  @@map("password_reset_tokens")
+}
+
 model Category {
   id          String    @id @default(cuid())
   name        String
@@ -97,8 +112,8 @@ model Product {
   name        String
   slug        String   @unique
   description String?
-  price       Decimal  @db.Money
-  comparePrice Decimal? @db.Money
+  price       Decimal
+  comparePrice Decimal?
   sku         String?  @unique
   inventory   Int      @default(0)
   weight      Decimal?
@@ -138,7 +153,7 @@ model ProductVariant {
   id        String   @id @default(cuid())
   name      String
   value     String
-  price     Decimal? @db.Money
+  price     Decimal?
   sku       String?  @unique
   inventory Int      @default(0)
   productId String   @map("product_id")
@@ -153,12 +168,42 @@ model Order {
   id            String      @id @default(cuid())
   orderNumber   String      @unique @map("order_number")
   status        OrderStatus @default(PENDING)
-  total         Decimal     @db.Money
-  subtotal      Decimal     @db.Money
-  tax           Decimal     @default(0) @db.Money
-  shipping      Decimal     @default(0) @db.Money
-  discount      Decimal     @default(0) @db.Money
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  total         Decimal
+  subtotal      Decimal
+  tax           Decimal     @default(0)
+  shipping      Decimal     @default(0)
+  discount      Decimal     @default(0)
   notes         String?
+
+  // Payment Information
+  paymentMethod         String? @map("payment_method")
+  transactionId         String? @unique @map("transaction_id")
+  cardLast4            String? @map("card_last_4")
+  cardBrand            String? @map("card_brand")
+
+  // Shipping Information
+  shippingFirstName String? @map("shipping_first_name")
+  shippingLastName  String? @map("shipping_last_name")
+  shippingAddress1  String? @map("shipping_address_1")
+  shippingAddress2  String? @map("shipping_address_2")
+  shippingCity      String? @map("shipping_city")
+  shippingState     String? @map("shipping_state")
+  shippingPostalCode String? @map("shipping_postal_code")
+  shippingCountry   String? @map("shipping_country")
+  shippingPhone     String? @map("shipping_phone")
+
+  // Billing Information
+  billingFirstName  String? @map("billing_first_name")
+  billingLastName   String? @map("billing_last_name")
+  billingAddress1   String? @map("billing_address_1")
+  billingAddress2   String? @map("billing_address_2")
+  billingCity       String? @map("billing_city")
+  billingState      String? @map("billing_state")
+  billingPostalCode String? @map("billing_postal_code")
+  billingCountry    String? @map("billing_country")
+  billingPhone      String? @map("billing_phone")
+
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -175,8 +220,8 @@ model Order {
 model OrderItem {
   id        String   @id @default(cuid())
   quantity  Int
-  price     Decimal  @db.Money
-  total     Decimal  @db.Money
+  price     Decimal
+  total     Decimal
   orderId   String   @map("order_id")
   productId String   @map("product_id")
   createdAt DateTime @default(now())
@@ -274,7 +319,21 @@ enum OrderStatus {
   REFUNDED
 }
 
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
 enum AddressType {
   BILLING
   SHIPPING
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }

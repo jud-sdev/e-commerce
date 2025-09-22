@@ -5,6 +5,8 @@ export function formatPrice(price: number): string {
   }).format(price)
 }
 
+export const formatCurrency = formatPrice
+
 export function formatDate(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('en-US', {
