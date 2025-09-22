@@ -325,7 +325,7 @@ describe('Products API', () => {
 
     it('should handle products without compare price', () => {
       const product = { price: 20, comparePrice: null }
-      const hasDiscount = product.comparePrice && product.comparePrice > product.price
+      const hasDiscount = !!(product.comparePrice && product.comparePrice > product.price)
 
       expect(hasDiscount).toBe(false)
     })
