@@ -1,0 +1,54 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test
+        NEXTAUTH_SECRET: test-secret-key
+        NEXTAUTH_URL: http://localhost:3000
+        NODE_ENV: test
+      run: |
+        npx prisma generate
+        npm test
+
+    - name: Build application
+      env:
+        NODE_ENV: production
+      run: npm run build
+
+    - name: Deploy to Render
+      if: success()
+      run: |
+        echo "Deployment triggered via git push to main branch"
+        echo "Render will automatically deploy when this workflow completes successfully"
+        echo "Monitor deployment at: https://dashboard.render.com"
+
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment pipeline completed successfully"
+        else
+          echo "❌ Deployment pipeline failed"
+        fi

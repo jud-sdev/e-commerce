@@ -1,0 +1,17 @@
+services:
+  # Web Service for Next.js App (FREE)
+  - type: web
+    name: ecommerce-app
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 18
+      # Add DATABASE_URL manually from your free database provider
+      # Add NEXTAUTH_URL manually
+      # Add NEXTAUTH_SECRET manually
