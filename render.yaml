@@ -1,44 +1,17 @@
 services:
-  # Main Next.js application
+  # Web Service for Next.js App (FREE)
   - type: web
-    name: e-commerce-app
+    name: ecommerce-app
     runtime: node
-    env: node
-    plan: starter
-    buildCommand: npm ci && npm run build
-    startCommand: npm start
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NEXTAUTH_URL
-        fromService:
-          type: web
-          name: e-commerce-app
-          property: host
-      - key: NEXTAUTH_SECRET
-        generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: e-commerce-db
-          property: connectionString
-      - key: NEXT_PUBLIC_BASE_URL
-        fromService:
-          type: web
-          name: e-commerce-app
-          property: host
-    autoDeploy: true
-    branch: main
-    rootDir: .
-
-  # PostgreSQL database
-  - type: pgsql
-    name: e-commerce-db
-    databaseName: ecommerce
-    user: ecommerce_user
-    plan: starter
-
-  # Redis for caching and sessions (optional)
-  - type: redis
-    name: e-commerce-redis
-    plan: starter
-    maxmemoryPolicy: allkeys-lru
+      - key: NODE_VERSION
+        value: 18
+      # Add DATABASE_URL manually from your free database provider
+      # Add NEXTAUTH_URL manually
+      # Add NEXTAUTH_SECRET manually

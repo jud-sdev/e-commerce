@@ -106,7 +106,7 @@ export default async function HomePage() {
   const featuredProducts = await getFeaturedProducts()
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">

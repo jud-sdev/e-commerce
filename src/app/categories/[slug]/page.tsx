@@ -12,7 +12,7 @@ interface CategoryPageProps {
 }
 
 async function getCategory(slug: string) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
 
   const response = await fetch(`${baseUrl}/api/categories`, {
     cache: 'no-store'
@@ -27,7 +27,7 @@ async function getCategory(slug: string) {
 }
 
 async function getCategoryProducts(categoryId: string, searchParams: any) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
   const params = new URLSearchParams()
 
   params.set('category', categoryId)
@@ -50,7 +50,7 @@ async function getCategoryProducts(categoryId: string, searchParams: any) {
 }
 
 async function getCategories() {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
 
   const response = await fetch(`${baseUrl}/api/categories`, {
     cache: 'no-store'

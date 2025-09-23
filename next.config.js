@@ -66,7 +66,9 @@ const nextConfig = {
       'localhost',
       'images.unsplash.com',
       'via.placeholder.com',
-      'res.cloudinary.com'
+      'res.cloudinary.com',
+      'render.com',
+      'onrender.com'
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
@@ -89,8 +91,7 @@ const nextConfig = {
   // Redirect trailing slashes
   trailingSlash: false,
 
-  // Enable SWC minification
-  swcMinify: true,
+  // Remove deprecated swcMinify option (it's default in Next.js 13+)
 }
 
 module.exports = nextConfig

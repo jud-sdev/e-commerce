@@ -13,7 +13,7 @@ interface ProductPageProps {
 }
 
 async function getProduct(slug: string) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
 
   const response = await fetch(`${baseUrl}/api/products`, {
     cache: 'no-store'
@@ -28,7 +28,7 @@ async function getProduct(slug: string) {
 }
 
 async function getProductById(id: string) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
 
   const response = await fetch(`${baseUrl}/api/products/${id}`, {
     cache: 'no-store'

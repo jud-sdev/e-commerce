@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AuthProvider from "@/components/providers/auth-provider";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/structured-data";
 import "./globals.css";
 
@@ -34,7 +36,7 @@ export const metadata: Metadata = {
   authors: [{ name: "E-Commerce Platform Team" }],
   creator: "E-Commerce Platform",
   publisher: "E-Commerce Platform",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'),
   alternates: {
     canonical: '/',
   },
@@ -83,7 +85,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
 
   return (
     <html lang="en">
@@ -110,7 +112,13 @@ export default function RootLayout({
           description="Discover our premium e-commerce platform offering high-quality products with secure checkout, fast shipping, and exceptional customer service"
         />
         <AuthProvider>
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </AuthProvider>
       </body>
     </html>
