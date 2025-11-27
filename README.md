@@ -37,7 +37,6 @@ The application includes comprehensive models for:
 
 - Node.js 18+
 - PostgreSQL database
-- Git
 
 ### Installation
 

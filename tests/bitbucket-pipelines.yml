@@ -1,0 +1,60 @@
+image: node:18
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Deploy to AWS Lambda
+          script:
+            - npm install
+            - zip -r deployment.zip .
+            - pipe: atlassian/aws-lambda-deploy:1.3.2
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_REGION: $AWS_REGION
+                FUNCTION_NAME: "my-lambda-function"
+                ZIP_FILE: "deployment.zip"
+
+
+
+
+
+
+
+image: node:18
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Deploy Lambda with OIDC
+          oidc: true
+          script:
+            - npm ci
+            - zip -r deployment.zip .
+            - ROLE=$(aws sts assume-role-with-web-identity \
+                --role-arn $AWS_ROLE_ARN \
+                --role-session-name bitbucket \
+                --web-identity-token $BITBUCKET_STEP_OIDC_TOKEN \
+                --query 'Credentials' --output json)
+
+            - export AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r '.AccessKeyId')
+            - export AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r '.SecretAccessKey')
+            - export AWS_SESSION_TOKEN=$(echo $ROLE | jq -r '.SessionToken')
+
+            - aws lambda update-function-code \
+                --function-name my-lambda \
+                --zip-file fileb://deployment.zip
+
+
+
+
+
+
+{
+  "AccessKeyId": "...",
+  "SecretAccessKey": "...",
+  "SessionToken": "...",
+  "Expiration": "..."
+}
