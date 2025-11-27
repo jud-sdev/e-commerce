@@ -1,0 +1,55 @@
+name: WhatsApp Deployment Notification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [closed]
+    branches: [ main ]
+
+jobs:
+  notify:
+    # Only run if it's a direct push or a merged PR
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Send WhatsApp Notification
+        env:
+          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_PHONE_ID: ${{ secrets.WHATSAPP_PHONE_ID }}
+          RECIPIENT_PHONE: ${{ secrets.RECIPIENT_PHONE }}
+        run: |
+          # Determine the event type
+          if [ "${{ github.event_name }}" == "push" ]; then
+            EVENT_TYPE="🚀 Direct Push"
+            AUTHOR="${{ github.actor }}"
+            MESSAGE="${{ github.event.head_commit.message }}"
+          else
+            EVENT_TYPE="🔀 Merged PR"
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            MESSAGE="${{ github.event.pull_request.title }}"
+          fi
+          # Create the message
+          DEPLOYMENT_MSG="*Deployment Alert* 🎉\n\n\
+          *Event:* ${EVENT_TYPE}\n\
+          *Branch:* main\n\
+          *Author:* ${AUTHOR}\n\
+          *Commit:* ${MESSAGE}\n\
+          *Repository:* ${{ github.repository }}\n\
+          *Time:* $(date -u +"%Y-%m-%d %H:%M:%S UTC")\n\n\
+          View changes: ${{ github.event.compare }}"
+          # Send WhatsApp message
+          curl -X POST \
+            "https://graph.facebook.com/v18.0/${WHATSAPP_PHONE_ID}/messages" \
+            -H "Authorization: Bearer ${WHATSAPP_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"messaging_product\": \"whatsapp\",
+              \"to\": \"${RECIPIENT_PHONE}\",
+              \"type\": \"text\",
+              \"text\": {
+                \"body\": \"${DEPLOYMENT_MSG}\"
+              }
+            }"
